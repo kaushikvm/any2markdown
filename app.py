@@ -17,7 +17,7 @@ OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), 'outputs')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.doc', '.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.txt', '.json', '.xml', '.md'}
+ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.txt', '.json', '.xml', '.md'}
 
 # Initialize MarkItDown in standard mode for PDFs and Docs
 md = MarkItDown()
