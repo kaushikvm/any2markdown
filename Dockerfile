@@ -1,7 +1,7 @@
-# Use a lightweight stable base Python image setup configuration
+# Use an official lightweight Python image
 FROM python:3.11-slim
 
-# Install system-level underlying libraries for reading PDFs and handling image operations
+# Install system-level dependencies for PDFs and Tesseract OCR
 RUN apt-get update && apt-get install -y \
     poppler-utils \
     tesseract-ocr \
@@ -11,9 +11,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install dependency arrays
+# Copy and install Python requirement layers
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Explicitly install the necessary OCR companion packages
+RUN pip install --no-cache-dir pytesseract Pillow
 
 COPY . .
 
