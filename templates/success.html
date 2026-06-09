@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversion Successful &#10024; &mdash; Any2Markdown</title>
+    <title>Conversion Successful &mdash; Any2Markdown</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -257,12 +257,12 @@
 
     <div class="success-hero">
         <div class="success-icon">&#10003;</div>
-        <h1>Converted <span class="green">Successfully!</span> &#127881;</h1>
+        <h1>Converted <span class="green">Successfully!</span> 🎉</h1>
         <p>Your file has been converted to clean Markdown and is ready to download.</p>
     </div>
 
     <div class="file-card">
-        <div class="file-card-header">&#128196; Conversion Summary</div>
+        <div class="file-card-header">📄 Conversion Summary</div>
         <div class="stats-row">
             <div class="stat">
                 <div class="stat-label">Original File</div>
@@ -280,23 +280,23 @@
     </div>
 
     <a href="/download-file/{{ info.uid }}/{{ info.md_filename }}" class="download-btn" id="downloadBtn">
-        &#11123; Download {{ info.md_filename }}
+        📥 Download {{ info.md_filename }}
     </a>
     <p class="convert-again-link">
         Want to convert another file? <a href="/">Go back to converter &rarr;</a>
     </p>
 
     <div class="section-divider">
-        <hr><span>&#9749; Enjoyed the tool? Here&rsquo;s a little something&hellip;</span><hr>
+        <hr><span>☕ Enjoyed the tool? Here&rsquo;s a little something&hellip;</span><hr>
     </div>
 
     <div class="donation-card">
         <div class="donation-header">
-            <span class="donation-emoji">&#9749;&#65039;</span>
-            <h2>Buy me a <span class="orange">chai?</span> &#127866;</h2>
+            <span class="donation-emoji">☕️</span>
+            <h2>Buy me a <span class="orange">chai?</span> 🍺</h2>
             <p>
                 This tool is completely free. If it saved you time, even a small donation
-                means the world and keeps this project alive! &#128149;
+                means the world and keeps this project alive! 💕
             </p>
         </div>
 
@@ -310,7 +310,7 @@
                 <div class="qr-image-wrap">
                     <img src="/static/upi-qr.png" alt="UPI QR Code — Kaushik VM">
                 </div>
-                <p class="qr-scan-hint">&#128247; Scan with any UPI app</p>
+                <p class="qr-scan-hint">📷 Scan with any UPI app</p>
             </div>
 
             <div class="app-badges">
@@ -327,7 +327,7 @@
                     Paytm
                 </div>
                 <div class="app-badge" style="color:#4ade80;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.06);">
-                    &#43; Any UPI App
+                    + Any UPI App
                 </div>
             </div>
 
@@ -335,17 +335,17 @@
                 <div class="upi-label">UPI ID &mdash; tap to copy</div>
                 <div class="upi-id-box" id="upiIdBox">
                     <span id="upiIdText">kaushik.icon@oksbi</span>
-                    <span class="copy-icon">&#128203;</span>
+                    <span class="copy-icon">📋</span>
                 </div>
                 <div class="copy-hint" id="copyHint">Tap the box to copy &bull; Works on GPay, PhonePe, Paytm &amp; all UPI apps</div>
             </div>
 
             <div class="amount-row">
-                <span class="chip">&#8377; 10</span>
-                <span class="chip">&#8377; 20</span>
-                <span class="chip">&#8377; 50</span>
-                <span class="chip highlight">&#8377; 100</span>
-                <span class="chip highlight">Any amount &#128522;</span>
+                <span class="chip">₹ 10</span>
+                <span class="chip">₹ 20</span>
+                <span class="chip">₹ 50</span>
+                <span class="chip highlight">₹ 100</span>
+                <span class="chip highlight">Any amount 😊</span>
             </div>
 
         </div>
@@ -353,12 +353,12 @@
         <div class="donation-note">
             <strong>No pressure at all!</strong> This tool will always be 100% free.
             Donations simply help keep the servers running and motivate future improvements.
-            Thank you so much for using Any2Markdown! &#128149;
+            Thank you so much for using Any2Markdown! 💕
         </div>
     </div>
 
     <p class="footer-simple">
-        &copy; 2026 Any2Markdown &mdash; Made with &#x2764; for developers &bull;
+        &copy; 2026 Any2Markdown &mdash; Made with ❤️ for developers &bull;
         <a href="/">Convert another file</a>
     </p>
 
@@ -413,8 +413,8 @@ document.getElementById('upiIdBox').addEventListener('click', function () {
         const hint = document.getElementById('copyHint');
         const icon = box.querySelector('.copy-icon');
         const origIcon = icon.textContent;
-        icon.textContent = '\u2705';
-        hint.textContent = '\u2705 Copied! Open any UPI app and paste to pay.';
+        icon.textContent = '✅';
+        hint.textContent = '✅ Copied! Open any UPI app and paste to pay.';
         hint.style.color = 'var(--green)';
         setTimeout(() => {
             icon.textContent = origIcon;
@@ -424,11 +424,13 @@ document.getElementById('upiIdBox').addEventListener('click', function () {
     });
 });
 
-// ---- FIXED DYNAMIC AUTO-DOWNLOAD TRIGGER ----
+// ---- FIXED DYNAMIC AUTO-DOWNLOAD TRIGGER WITH JINJA SAFEGUARDS ----
 window.addEventListener('load', function () {
+    {% if info and info.uid and info.md_filename %}
     setTimeout(function () {
         window.location.href = "/download-file/{{ info.uid }}/{{ info.md_filename }}";
     }, 1000); 
+    {% endif %}
 });
 </script>
 </body>
