@@ -1,15 +1,13 @@
 import os
 import uuid
-import io
+import traceback
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
 from werkzeug.utils import secure_filename
 from markitdown import MarkItDown
 
 app = Flask(__name__)
-# Keep secret key for essential flash message signaling
 app.secret_key = "super_secret_conversion_key_12345"
 
-# Setup local storage paths securely on PythonAnywhere disk space
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), 'outputs')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -28,44 +26,73 @@ def index():
             return render_template('index.html')
             
         filename = secure_filename(file.filename)
-        ext = os.path.splitext(filename)[1].lower()
+        raw_ext = os.path.splitext(filename)[1].lower()
+        ext_without_dot = raw_ext.lstrip('.')
+        
+        task_id = str(uuid.uuid4())
+        temp_input_name = f"input_{task_id}{raw_ext}"
+        temp_input_path = os.path.join(UPLOAD_FOLDER, temp_input_name)
         
         try:
-            # Read file data directly into an in-memory byte buffer stream
-            file_bytes = file.read()
-            file_stream = io.BytesIO(file_bytes)
+            file.save(temp_input_path)
             
-            # Formulate original size display metric string
-            size_kb = round(len(file_bytes) / 1024, 1)
-            input_size_str = f"{size_kb} KB" if size_kb > 0 else f"{len(file_bytes)} B"
+            size_bytes = os.path.getsize(temp_input_path)
+            size_kb = round(size_bytes / 1024, 1)
+            input_size_str = f"{size_kb} KB" if size_kb > 0 else f"{size_bytes} B"
             
-            # Initialize MarkItDown and convert directly from memory stream buffer
-            md = MarkItDown()
-            result = md.convert_stream(file_stream, file_extension=ext)
-            md_content = result.text_content or ''
+            md_content = ""
             
-            # Fallback block: if markitdown returns an empty string for plain text structures, read raw bytes
-            if not md_content.strip() and ext in ['.txt', '.csv', '.json', '.xml', '.md']:
-                md_content = file_bytes.decode('utf-8', errors='ignore')
+            # OPTIMIZED IMAGE HANDLING FALLBACK
+            if raw_ext in ['.png', '.jpg', '.jpeg']:
+                try:
+                    import easyocr
+                    # Initialize the reader (English text processing)
+                    reader = easyocr.Reader(['en'], gpu=False)
+                    bounds = reader.readtext(temp_input_path, detail=0)
+                    
+                    if bounds:
+                        md_content = f"# Extracted Text from {filename}\n\n" + "\n\n".join(bounds)
+                except Exception as img_err:
+                    print(f"EasyOCR fallback failed: {str(img_err)}")
+            
+            # DEFAULT CORE PIPELINE (If not handled by image engine or if it returns blank)
+            if not md_content.strip():
+                md = MarkItDown()
+                result = md.convert(temp_input_path)
+                md_content = result.text_content or ''
+            
+            # TEXT SUB-FORMATS FALLBACK
+            if not md_content.strip() and raw_ext in ['.txt', '.csv', '.json', '.xml', '.md']:
+                with open(temp_input_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    md_content = f.read()
+            
+            # FINAL ACCIDENT SAFEGUARD: If it's still completely blank, make a note of it
+            if not md_content.strip():
+                md_content = f"# {filename}\n\nNo readable textual elements could be extracted from this asset format structure."
                 
             md_filename = os.path.splitext(filename)[0] + '.md'
+            output_path = os.path.join(OUTPUT_FOLDER, f"{task_id}.md")
             
-            # Generate unique server tracking file identifier
-            output_id = str(uuid.uuid4())
-            output_path = os.path.join(OUTPUT_FOLDER, f"{output_id}.md")
-            
-            # Write markdown asset securely to local disk storage
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(md_content)
                 
-            # VETERAN FIX: Pass metrics safely via URL parameters instead of breaking the session cookie limit
+            if os.path.exists(temp_input_path):
+                os.remove(temp_input_path)
+                
             return redirect(url_for('success', 
-                                    uid=output_id, 
+                                    uid=task_id, 
                                     out_name=md_filename, 
                                     orig_name=filename, 
                                     orig_size=input_size_str))
             
         except Exception as e:
+            print("--- MARKITDOWN CONVERSION CRASH TRACEBACK ---")
+            traceback.print_exc()
+            print("---------------------------------------------")
+            
+            if os.path.exists(temp_input_path):
+                os.remove(temp_input_path)
+                
             flash(f"Conversion failed: {str(e)}")
             return render_template('index.html')
             
@@ -73,7 +100,6 @@ def index():
 
 @app.route('/success')
 def success():
-    # Gather parameters out of the secure URL query string mapping
     output_id = request.args.get('uid')
     md_filename = request.args.get('out_name', 'converted.md')
     original_name = request.args.get('orig_name', 'Document')
@@ -96,13 +122,12 @@ def success():
         else:
             output_size_str = "0 B"
 
-        # Populates the explicit 'info' structure variable expected by success.html
         info_payload = {
             'original_name': original_name,
             'input_size': input_size_str,
             'output_size': output_size_str,
             'md_filename': md_filename,
-            'uid': output_id  # Passed forward for the JavaScript automatic download trigger
+            'uid': output_id 
         }
         
         return render_template('success.html', info=info_payload)
@@ -112,7 +137,6 @@ def success():
 
 @app.route('/download-file/<uid>/<filename>')
 def download_file(uid, filename):
-    # Verify file existence directly inside output directory layout securely via route parameters
     return send_from_directory(
         OUTPUT_FOLDER, 
         f"{uid}.md", 
