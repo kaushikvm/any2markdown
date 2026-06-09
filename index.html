@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Any2Markdown &mdash; Convert Any File to Clean Markdown</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0a0a;
+            --bg2: #111111;
+            --card: #1a1a1a;
+            --card2: #1e1e1e;
+            --border: #2a2a2a;
+            --orange: #f97316;
+            --orange-light: #fb923c;
+            --green: #4ade80;
+            --red: #ef4444;
+            --red-light: #f87171;
+            --text: #ffffff;
+            --text-muted: #9ca3af;
+            --text-dim: #6b7280;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10,10,10,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo { font-size: 18px; font-weight: 700; color: var(--text); }
+        .nav-links { display: flex; gap: 28px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-btn {
+            background: var(--orange); color: #fff; border: none;
+            padding: 8px 18px; border-radius: 8px; font-size: 14px;
+            font-weight: 600; cursor: pointer; text-decoration: none;
+            transition: background .2s;
+        }
+        .nav-btn:hover { background: var(--orange-light); }
+
+        /* --- HERO --- */
+        .hero {
+            min-height: auto;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center;
+            padding: 100px 24px 40px;
+            background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(249,115,22,0.18) 0%, transparent 70%),
+                        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(6,78,59,0.15) 0%, transparent 60%),
+                        var(--bg);
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.3);
+            color: var(--orange); font-size: 13px; font-weight: 500;
+            padding: 6px 16px; border-radius: 100px; margin-bottom: 32px;
+        }
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 72px); font-weight: 800;
+            line-height: 1.1; letter-spacing: -1.5px;
+            margin-bottom: 24px; max-width: 820px;
+        }
+        .hero h1 .accent-orange { color: var(--orange); }
+        .hero h1 .accent-green { color: var(--green); }
+        .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 560px; line-height: 1.7; margin-bottom: 40px; }
+        .hero-cta {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--orange); color: #fff; font-size: 16px; font-weight: 700;
+            padding: 14px 32px; border-radius: 10px; text-decoration: none;
+            transition: background .2s, transform .15s; margin-bottom: 36px;
+        }
+        .hero-cta:hover { background: var(--orange-light); transform: translateY(-2px); }
+        .hero-perks { display: flex; gap: 28px; font-size: 13px; color: var(--text-dim); flex-wrap: wrap; justify-content: center; }
+        .hero-perks span { display: flex; align-items: center; gap: 6px; }
+        .dot-green { width: 7px; height: 7px; background: var(--green); border-radius: 50%; display: inline-block; }
+        .scroll-arrow { margin-top: 20px; color: var(--text-dim); font-size: 22px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+        /* --- UPLOAD SECTION --- */
+        .upload-section {
+            padding: 40px 24px 80px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .section-label { font-size: clamp(28px, 4vw, 42px); font-weight: 800; margin-bottom: 12px; }
+        .section-label .accent { color: var(--orange); }
+        .section-sub { color: var(--text-muted); font-size: 16px; max-width: 520px; line-height: 1.7; margin-bottom: 48px; }
+
+        /* Flash messages */
+        .flash-messages { width: 100%; max-width: 680px; margin-bottom: 20px; }
+        .flash-msg {
+            background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35);
+            color: #f87171; padding: 12px 18px; border-radius: 10px; font-size: 14px;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+        }
+
+        /* ---- DROP ZONE (empty state) ---- */
+        .upload-card {
+            width: 100%; max-width: 680px;
+            background: var(--card); border: 2px dashed var(--border);
+            border-radius: 18px; padding: 56px 40px;
+            transition: border-color .25s, background .25s;
+            cursor: pointer; position: relative;
+        }
+        .upload-card:hover, .upload-card.drag-over {
+            border-color: var(--orange);
+            background: rgba(249,115,22,0.05);
+        }
+        .upload-icon {
+            width: 64px; height: 64px;
+            background: rgba(249,115,22,0.12); border: 1.5px solid rgba(249,115,22,0.3);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 26px;
+        }
+        .upload-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .upload-card .browse-hint { color: var(--text-muted); font-size: 14px; }
+        .upload-card .browse-hint span { color: var(--orange); cursor: pointer; }
+        #fileInput { display: none; }
+
+        /* ---- FILE SELECTED STATE ---- */
+        #file-selected-panel {
+            display: none;
+            width: 100%; max-width: 680px;
+            background: var(--card); border: 2px solid rgba(249,115,22,0.45);
+            border-radius: 18px; overflow: hidden;
+            animation: slideIn .25s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .file-panel-header {
+            background: rgba(249,115,22,0.08);
+            border-bottom: 1px solid rgba(249,115,22,0.2);
+            padding: 14px 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .file-panel-header .check-icon {
+            width: 26px; height: 26px; background: var(--green);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 13px; flex-shrink: 0;
+        }
+        .file-panel-header span {
+            font-size: 14px; font-weight: 600; color: var(--green);
+        }
+
+        .file-info-row {
+            padding: 22px 22px 18px;
+            display: flex; align-items: center; gap: 18px;
+        }
+        .file-type-badge {
+            width: 52px; height: 60px;
+            background: rgba(249,115,22,0.12); border: 1.5px solid rgba(249,115,22,0.3);
+            border-radius: 10px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; flex-shrink: 0; gap: 4px;
+        }
+        .file-type-badge .file-icon { font-size: 20px; }
+        .file-type-badge .file-ext {
+            font-size: 9px; font-weight: 800; color: var(--orange);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .file-details { text-align: left; flex: 1; min-width: 0; }
+        .file-name {
+            font-size: 15px; font-weight: 700;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+        .file-meta { font-size: 12px; color: var(--text-dim); display: flex; gap: 14px; }
+        .file-meta span { display: flex; align-items: center; gap: 4px; }
+
+        .file-panel-actions {
+            padding: 0 22px 22px;
+            display: flex; gap: 12px;
+        }
+
+        /* Convert button (in panel) */
+        .btn-convert {
+            flex: 1; background: var(--orange); color: #fff;
+            border: none; padding: 13px 20px; border-radius: 10px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: background .2s, transform .15s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-convert:hover { background: var(--orange-light); transform: translateY(-2px); }
+
+        /* Cancel / change button */
+        .btn-cancel {
+            background: transparent; color: var(--text-muted);
+            border: 1.5px solid var(--border); padding: 13px 20px;
+            border-radius: 10px; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all .2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-cancel:hover {
+            border-color: var(--red-light); color: var(--red-light);
+            background: rgba(239,68,68,0.07);
+        }
+
+        /* Change file button (small, below panel) */
+        .change-file-hint {
+            margin-top: 12px; font-size: 13px; color: var(--text-dim);
+        }
+        .change-file-hint button {
+            background: none; border: none; color: var(--orange);
+            font-size: 13px; cursor: pointer; text-decoration: underline;
+            padding: 0;
+        }
+
+        .formats-info { margin-top: 20px; font-size: 12px; color: var(--text-dim); max-width: 680px; line-height: 1.6; }
+
+        /* Loading spinner */
+        .spinner {
+            display: none; width: 18px; height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff;
+            border-radius: 50%; animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- FEATURES --- */
+        .features-section { padding: 96px 24px; text-align: center; }
+        .features-section h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; margin-bottom: 12px; }
+        .features-section h2 .accent { color: var(--orange); }
+        .features-sub { color: var(--text-muted); font-size: 16px; max-width: 520px; margin: 0 auto 56px; line-height: 1.7; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+        .feature-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px; text-align: left;
+            transition: border-color .25s, transform .2s;
+        }
+        .feature-card:hover { border-color: rgba(249,115,22,0.4); transform: translateY(-3px); }
+        .feature-icon {
+            width: 44px; height: 44px; background: rgba(249,115,22,0.12);
+            border: 1px solid rgba(249,115,22,0.25); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 18px;
+        }
+        .feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { color: var(--text-muted); font-size: 14px; line-height: 1.65; }
+
+        /* --- FOOTER --- */
+        footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 56px 40px 32px; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; max-width: 1100px; margin: 0 auto 48px; }
+        .footer-brand p { color: var(--text-muted); font-size: 14px; margin-top: 12px; line-height: 1.6; max-width: 260px; }
+        .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 18px; }
+        .footer-col a { display: block; color: var(--text-muted); text-decoration: none; font-size: 14px; margin-bottom: 10px; transition: color .2s; }
+        .footer-col a:hover { color: var(--text); }
+        .footer-bottom {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            border-top: 1px solid var(--border); padding-top: 28px;
+            font-size: 13px; color: var(--text-dim);
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 14px 20px; }
+            .nav-links { display: none; }
+            .file-panel-actions { flex-direction: column; }
+            .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+            .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-logo"><span style="color:var(--text);font-weight:800;">Any</span><span style="color:var(--orange);font-weight:900;">2</span><span style="color:var(--green);font-weight:800;">Markdown</span></div>
+    <div class="nav-links">
+        <a href="#convert">Convert</a>
+        <a href="#features">Features</a>
+        <a href="#footer">Contact</a>
+    </div>
+    <a href="#convert" class="nav-btn">Convert Free &rarr;</a>
+</nav>
+
+<section class="hero">
+    <div class="hero-badge">&#9889; Built for developers &amp; AI workflows</div>
+    <h1>Convert Files to <span class="accent-orange">Clean</span><br><span class="accent-green">Markdown</span> Instantly</h1>
+    <p class="hero-sub">Perfect for LLM pipelines, RAG systems, and developer workflows. Get structured, AI-ready Markdown from any document in seconds.</p>
+    <a href="#convert" class="hero-cta">&#9889; Convert Now &mdash; Free</a>
+    <div class="hero-perks">
+        <span><span class="dot-green"></span> No signup required</span>
+        <span><span class="dot-green"></span> Files deleted after conversion</span>
+        <span><span class="dot-green"></span> Powered by MarkItDown</span>
+    </div>
+    <div class="scroll-arrow">&#8595;</div>
+</section>
+
+<section class="upload-section" id="convert">
+    <div class="section-label">Try it <span class="accent">now</span></div>
+    <p class="section-sub">Drop your file below and get clean Markdown in seconds. No signup required.</p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for msg in messages %}
+        <div class="flash-msg">&#9888; {{ msg }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data" id="uploadForm" style="width:100%;max-width:680px;display:flex;flex-direction:column;align-items:center;">
+
+        <div class="upload-card" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">&#8679;</div>
+            <h3>Drag &amp; drop your file here</h3>
+            <p class="browse-hint">or <span>click to browse</span> &mdash; max 30 MB</p>
+            <input type="file" name="file" id="fileInput" accept="*/*">
+        </div>
+
+        <div id="file-selected-panel">
+            <div class="file-panel-header">
+                <div class="check-icon">&#10003;</div>
+                <span>File ready to convert</span>
+            </div>
+            <div class="file-info-row">
+                <div class="file-type-badge">
+                    <span class="file-icon" id="fileIcon">&#128196;</span>
+                    <span class="file-ext" id="fileExt">FILE</span>
+                </div>
+                <div class="file-details">
+                    <div class="file-name" id="fileNameDisplay">filename.pdf</div>
+                    <div class="file-meta">
+                        <span>&#128190; <span id="fileSizeDisplay">—</span></span>
+                        <span>&#128196; <span id="fileTypeDisplay">—</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="file-panel-actions">
+                <button type="submit" class="btn-convert" id="convertBtn">
+                    <div class="spinner" id="spinner"></div>
+                    <span id="btnText">&#10024; Convert to Markdown</span>
+                </button>
+                <button type="button" class="btn-cancel" id="cancelBtn">
+                    &#10005; Cancel
+                </button>
+            </div>
+        </div>
+
+        <p class="change-file-hint" id="changeFileHint" style="display:none;">
+            Wrong file? <button type="button" onclick="triggerFileInput()">Choose a different file</button>
+        </p>
+
+    </form>
+
+    <p class="formats-info">&#128196; Supported: PDF, Word (.docx), PowerPoint (.pptx), Excel (.xlsx/.xls), HTML, CSV, JSON, XML, Images (JPG/PNG), Audio, ZIP, EPub &amp; more</p>
+</section>
+
+<section class="features-section" id="features">
+    <h2>Why developers <span class="accent">love</span> us</h2>
+    <p class="features-sub">Built specifically for developers and AI workflows. Get the clean, structured output you need.</p>
+    <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">&#9889;</div><h3>Lightning Fast</h3><p>Convert files to Markdown in seconds, not minutes. Our optimised pipeline handles documents of any size.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#128274;</div><h3>Privacy First</h3><p>Your files are deleted immediately after conversion. We never store your documents on our servers.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#60;/&#62;</div><h3>Multi-Format</h3><p>Supports PDF, Word, PowerPoint, Excel, HTML, CSV, JSON, XML, Images, Audio, ZIP, EPub and more.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#128203;</div><h3>Clean Output</h3><p>Get properly formatted Markdown with headers, lists, and code blocks perfectly preserved.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#129302;</div><h3>LLM Ready</h3><p>Output is optimised for language models. Perfect for RAG pipelines, embeddings, and AI workflows.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#127760;</div><h3>Open Source</h3><p>Powered by Microsoft MarkItDown &amp; Flask. Transparent, trustworthy, and built for developers.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#128640;</div><h3>No Sign-up</h3><p>Jump straight in — no account, no credit card, no friction. Just upload and convert instantly.</p></div>
+        <div class="feature-card"><div class="feature-icon">&#128190;</div><h3>Instant Download</h3><p>Your Markdown file is returned immediately as a download. Ready to drop into any pipeline or editor.</p></div>
+    </div>
+</section>
+
+<footer id="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <div class="nav-logo" style="font-size:20px;"><span style="color:var(--text);font-weight:800;">Any</span><span style="color:var(--orange);font-weight:900;">2</span><span style="color:var(--green);font-weight:800;">Markdown</span></div>
+            <p>Convert any file to clean Markdown instantly. Built for developers and AI workflows.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Product</h4>
+            <a href="#convert">Convert File</a>
+            <a href="#features">Features</a>
+            <a href="#convert">Get Started</a>
+        </div>
+        <div class="footer-col">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>&copy; 2026 Any2Markdown. All rights reserved.</span>
+        <span>Made with &#x2764; for developers</span>
+    </div>
+</footer>
+
+<script>
+    const dropZone      = document.getElementById('dropZone');
+    const fileInput     = document.getElementById('fileInput');
+    const selectedPanel = document.getElementById('file-selected-panel');
+    const changeHint    = document.getElementById('changeFileHint');
+    const uploadForm    = document.getElementById('uploadForm');
+    const spinner       = document.getElementById('spinner');
+    const btnText       = document.getElementById('btnText');
+    const cancelBtn     = document.getElementById('cancelBtn');
+
+    // File type icon + label map
+    const fileTypeMap = {
+        pdf:  { icon: '\uD83D\uDCC4', label: 'PDF Document' },
+        doc:  { icon: '\uD83D\uDCDD', label: 'Word Document' },
+        docx: { icon: '\uD83D\uDCDD', label: 'Word Document' },
+        ppt:  { icon: '\uD83D\uDCCA', label: 'PowerPoint' },
+        pptx: { icon: '\uD83D\uDCCA', label: 'PowerPoint' },
+        xls:  { icon: '\uD83D\uDCCA', label: 'Excel Spreadsheet' },
+        xlsx: { icon: '\uD83D\uDCCA', label: 'Excel Spreadsheet' },
+        csv:  { icon: '\uD83D\uDCCB', label: 'CSV File' },
+        json: { icon: '\uD83D\uDDC2', label: 'JSON File' },
+        xml:  { icon: '\uD83D\uDDC2', label: 'XML File' },
+        html: { icon: '\uD83C\uDF10', label: 'HTML File' },
+        htm:  { icon: '\uD83C\uDF10', label: 'HTML File' },
+        txt:  { icon: '\uD83D\uDCC3', label: 'Text File' },
+        md:   { icon: '\uD83D\uDCC3', label: 'Markdown File' },
+        jpg:  { icon: '\uD83D\uDDBC', label: 'JPEG Image' },
+        jpeg: { icon: '\uD83D\uDDBC', label: 'JPEG Image' },
+        png:  { icon: '\uD83D\uDDBC', label: 'PNG Image' },
+        gif:  { icon: '\uD83D\uDDBC', label: 'GIF Image' },
+        zip:  { icon: '\uD83D\uDDC2', label: 'ZIP Archive' },
+        epub: { icon: '\uD83D\uDCDA', label: 'EPub Book' },
+        mp3:  { icon: '\uD83C\uDFB5', label: 'Audio File' },
+        wav:  { icon: '\uD83C\uDFB5', label: 'Audio File' },
+    };
+
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function showFilePanel(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const typeInfo = fileTypeMap[ext] || { icon: '\uD83D\uDCC4', label: ext.toUpperCase() + ' File' };
+
+        // Safeguard limit validation to stop large uploads before freezing workers
+        const maxLimitBytes = 30 * 1024 * 1024;
+        if (file.size > maxLimitBytes) {
+            alert("This file exceeds our 30 MB maximum threshold. Please upload a smaller document to prevent conversion timeouts.");
+            resetToDropZone();
+            return;
+        }
+
+        document.getElementById('fileIcon').textContent = typeInfo.icon;
+        document.getElementById('fileExt').textContent  = ext.toUpperCase();
+        document.getElementById('fileNameDisplay').textContent  = file.name;
+        document.getElementById('fileSizeDisplay').textContent  = formatBytes(file.size);
+        document.getElementById('fileTypeDisplay').textContent  = typeInfo.label;
+
+        dropZone.style.display      = 'none';
+        selectedPanel.style.display = 'block';
+        changeHint.style.display    = 'block';
+    }
+
+    function resetToDropZone() {
+        fileInput.value             = '';
+        dropZone.style.display      = 'block';
+        selectedPanel.style.display = 'none';
+        changeHint.style.display    = 'none';
+        spinner.style.display       = 'none';
+        btnText.textContent         = '\u2728 Convert to Markdown';
+
+        const convertBtn = document.getElementById('convertBtn');
+        convertBtn.disabled = false;
+        convertBtn.style.opacity = '1';
+        convertBtn.style.cursor = 'pointer';
+    }
+
+    function triggerFileInput() {
+        fileInput.click();
+    }
+
+    // File input change
+    fileInput.addEventListener('change', function () {
+        if (this.files[0]) showFilePanel(this.files[0]);
+    });
+
+    // Cancel button
+    cancelBtn.addEventListener('click', resetToDropZone);
+
+    // Drag & drop
+    dropZone.addEventListener('dragover', function (e) { e.preventDefault(); this.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', function () { this.classList.remove('drag-over'); });
+    dropZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        if (e.dataTransfer.files[0]) {
+            fileInput.files = e.dataTransfer.files;
+            showFilePanel(e.dataTransfer.files[0]);
+        }
+    });
+
+    // Form submit protective gate
+    uploadForm.addEventListener('submit', function (e) {
+        if (!fileInput.files[0]) {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--red)';
+            dropZone.querySelector('h3').textContent = 'Please select a file first!';
+            setTimeout(() => {
+                dropZone.style.borderColor = '';
+                dropZone.querySelector('h3').textContent = 'Drag & drop your file here';
+            }, 2500);
+            return;
+        }
+
+        // Lock click immediately to prevent double-submit multi-part race conditions
+        const convertBtn = document.getElementById('convertBtn');
+        convertBtn.disabled = true;
+        convertBtn.style.opacity = '0.7';
+        convertBtn.style.cursor = 'not-allowed';
+
+        spinner.style.display = 'inline-block';
+        btnText.textContent   = 'Converting...';
+        cancelBtn.disabled    = true;
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', function (e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+</script>
+</body>
+</html>
