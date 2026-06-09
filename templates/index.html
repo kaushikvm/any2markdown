@@ -7,7 +7,7 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        :root {
+        :root {h
             --bg: #0a0a0a;
             --bg2: #111111;
             --card: #1a1a1a;
@@ -290,25 +290,25 @@
         <a href="#features">Features</a>
         <a href="#footer">Contact</a>
     </div>
-    <a href="#convert" class="nav-btn">Convert Free &rarr;</a>
+    <a href="#convert" class="nav-btn">Start Converting &rarr;</a>
 </nav>
 
 <section class="hero">
-    <div class="hero-badge">&#9889; Built for developers &amp; AI workflows</div>
-    <h1>Convert Files to <span class="accent-yellow">Clean</span><br><span class="accent-orange">Markdown</span> Instantly</h1>
-    <p class="hero-sub">Stop burning your AI budget on messy layouts. Any2Markdown strips styling and layout bloat, <strong>slashing LLM token consumption by up to 80%</strong> so tools like Claude and ChatGPT deliver lightning-fast, highly precise outputs.</p>
-    <a href="#convert" class="hero-cta">&#9889; Convert Now &mdash; Free</a>
+    <div class="hero-badge">&#10024; Free &bull; No signup &bull; Instant conversion</div>
+    <h1>Turn Any File into <span class="accent-yellow">Clean</span><br><span class="accent-orange">Markdown</span> in Seconds</h1>
+    <p class="hero-sub">Drop your file, get clean Markdown. Works great for AI tools, note-taking apps, and developers who love clean text.ut bloat, <strong>slashing LLM token consumption by up to 80%</strong> so tools like Claude and ChatGPT deliver lightning-fast, highly precise outputs.</p>
+    <a href="#convert" class="hero-cta">&#9889; Try It Free &mdash; No Signup</a>
     <div class="hero-perks">
-        <span><span class="dot-green"></span> No signup required</span>
-        <span><span class="dot-green"></span> Files deleted after conversion</span>
-        <span><span class="dot-green"></span> Powered by MarkItDown</span>
+        <span><span class="dot-green"></span> 100% free, no account needed</span>
+        <span><span class="dot-green"></span> Your files are deleted right after conversion</span>
+        <span><span class="dot-green"></span> Powered by Microsoft MarkItDown</span>
     </div>
     <div class="scroll-arrow">&#8595;</div>
 </section>
 
 <section class="upload-section" id="convert">
     <div class="section-label">Try it <span class="accent">now</span></div>
-    <p class="section-sub">Drop your file below and get clean Markdown in seconds. No signup required.</p>
+    <p class="section-sub">Drop your file below and get clean Markdown in seconds. 100% free, no account needed.</p>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -324,9 +324,9 @@
 
         <div class="upload-card" id="dropZone" onclick="document.getElementById('fileInput').click()">
             <div class="upload-icon">&#8679;</div>
-            <h3>Drag &amp; drop your file here</h3>
-            <p class="browse-hint">or <span>click to browse</span> &mdash; max 30 MB</p>
-            <input type="file" name="file" id="fileInput" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt,.json,.xml,.md">
+            <h3>Drag &amp; drop your file here &#128196;</h3>
+            <p class="browse-hint">or <span>click to browse</span> &mdash; max 16 MB</p>
+            <input type="file" name="file" id="fileInput" accept=".pdf,.docx,.png,.jpg,.jpeg,.txt,.json,.xml,.md">
         </div>
 
         <div id="file-selected-panel">
@@ -350,7 +350,7 @@
             <div class="file-panel-actions">
                 <button type="submit" class="btn-convert" id="convertBtn">
                     <div class="spinner" id="spinner"></div>
-                    <span id="btnText">&#10024; Convert to Markdown</span>
+                    <span id="btnText">&#10024; Convert to Markdown!</span>
                 </button>
                 <button type="button" class="btn-cancel" id="cancelBtn">
                     &#10005; Cancel
