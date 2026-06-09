@@ -55,7 +55,7 @@ def index():
             if os.path.exists(temp_input_path):
                 os.remove(temp_input_path)
                 
-            return redirect(url_for('success', filename=output_filename))
+            return redirect(url_for('download_file', filename=output_filename))
             
         except Exception as e:
             print("Conversion Error Error:")
