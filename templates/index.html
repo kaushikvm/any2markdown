@@ -617,7 +617,7 @@ footer { padding: 36px 20px 28px; }
 <div class="hero-badge">&#128736; Powered by Microsoft MarkItDown &bull; Free &bull; No Signup</div>
 <h1>Convert Any File for<br><span class="grad">ChatGPT, Claude &amp; AI Agents</span></h1>
 <p class="hero-sub">
-Upload PDFs, Word documents, PowerPoints, spreadsheets, images and text files.<br>
+Upload PDFs, Word documents, images (PNG, JPG, JPEG, TIFF, BMP) and text files (TXT, JSON, XML, MD).<br>
 Get clean AI-ready Markdown that works beautifully with ChatGPT, Claude, Gemini, Cursor, Windsurf and RAG systems.<br><br>
 <strong style="color:var(--text);">Cleaner input. Better AI output. Faster workflows.</strong>
 </p>
@@ -642,22 +642,19 @@ Get clean AI-ready Markdown that works beautifully with ChatGPT, Claude, Gemini,
 <label class="upload-btn" for="fileInput">
 &#128640; Convert Your File
 </label>
-<input type="file" id="fileInput" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.txt,.md,.csv,.html,.htm,.epub,.odt,.rtf,.json,.xml">
+<input type="file" id="fileInput" name="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.tiff,.bmp,.txt,.json,.xml,.md">
 <div class="upload-formats-label">Supported file types</div>
 <div class="upload-formats">
 <span class="fmt-tag">&#128196; PDF</span>
 <span class="fmt-tag">&#128221; DOCX</span>
-<span class="fmt-tag">&#128202; XLSX</span>
-<span class="fmt-tag">&#127909; PPTX</span>
-<span class="fmt-tag">&#128247; Images (JPG, PNG)</span>
+<span class="fmt-tag">&#128247; PNG</span>
+<span class="fmt-tag">&#128247; JPG / JPEG</span>
+<span class="fmt-tag">&#128247; TIFF</span>
+<span class="fmt-tag">&#128247; BMP</span>
 <span class="fmt-tag">&#128196; TXT</span>
 <span class="fmt-tag">&#128194; JSON</span>
 <span class="fmt-tag">&#128203; XML</span>
-<span class="fmt-tag">&#127758; HTML</span>
-<span class="fmt-tag">&#128214; EPUB</span>
-<span class="fmt-tag">&#128196; CSV</span>
-<span class="fmt-tag">&#128196; RTF</span>
-<span class="fmt-tag">&#128196; ODT</span>
+<span class="fmt-tag">&#128196; MD</span>
 </div>
 </div>
 </form>
@@ -770,22 +767,18 @@ Get clean AI-ready Markdown that works beautifully with ChatGPT, Claude, Gemini,
 <div class="formats-inner">
 <div class="section-label">Supported Formats</div>
 <h2 class="section-title">Works with all your files</h2>
-<p class="section-sub">From scanned PDFs to spreadsheets — if you have a document, we can convert it to AI-ready Markdown.</p>
+<p class="section-sub">From scanned PDFs to images and text files — if you have a supported document, we can convert it to AI-ready Markdown.</p>
 <div class="formats-grid">
 <div class="format-chip"><div class="fmt-icon">&#128196;</div><div class="fmt-name">PDF</div><div class="fmt-ext">.pdf</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128221;</div><div class="fmt-name">Word</div><div class="fmt-ext">.docx .doc</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128202;</div><div class="fmt-name">Excel</div><div class="fmt-ext">.xlsx .xls</div></div>
-<div class="format-chip"><div class="fmt-icon">&#127909;</div><div class="fmt-name">PowerPoint</div><div class="fmt-ext">.pptx .ppt</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128247;</div><div class="fmt-name">Images</div><div class="fmt-ext">.jpg .png</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128214;</div><div class="fmt-name">EPUB</div><div class="fmt-ext">.epub</div></div>
-<div class="format-chip"><div class="fmt-icon">&#127758;</div><div class="fmt-name">HTML</div><div class="fmt-ext">.html .htm</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128195;</div><div class="fmt-name">Plain Text</div><div class="fmt-ext">.txt .md</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128203;</div><div class="fmt-name">CSV</div><div class="fmt-ext">.csv</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128220;</div><div class="fmt-name">RTF</div><div class="fmt-ext">.rtf</div></div>
-<div class="format-chip"><div class="fmt-icon">&#128193;</div><div class="fmt-name">ODT</div><div class="fmt-ext">.odt</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128221;</div><div class="fmt-name">Word</div><div class="fmt-ext">.docx</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128247;</div><div class="fmt-name">PNG</div><div class="fmt-ext">.png</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128247;</div><div class="fmt-name">JPG / JPEG</div><div class="fmt-ext">.jpg .jpeg</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128247;</div><div class="fmt-name">TIFF</div><div class="fmt-ext">.tiff</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128247;</div><div class="fmt-name">BMP</div><div class="fmt-ext">.bmp</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128196;</div><div class="fmt-name">Plain Text</div><div class="fmt-ext">.txt</div></div>
 <div class="format-chip"><div class="fmt-icon">&#128194;</div><div class="fmt-name">JSON</div><div class="fmt-ext">.json</div></div>
 <div class="format-chip"><div class="fmt-icon">&#128203;</div><div class="fmt-name">XML</div><div class="fmt-ext">.xml</div></div>
-<div class="format-chip"><div class="fmt-icon">&#10024;</div><div class="fmt-name">More soon</div><div class="fmt-ext">coming</div></div>
+<div class="format-chip"><div class="fmt-icon">&#128196;</div><div class="fmt-name">Markdown</div><div class="fmt-ext">.md</div></div>
 </div>
 </div>
 </section>
@@ -800,7 +793,7 @@ Get clean AI-ready Markdown that works beautifully with ChatGPT, Claude, Gemini,
 <div class="workflow-step-icon">&#128196;</div>
 <div class="workflow-step-text">
 <h4>Upload File</h4>
-<p>Drag and drop any PDF, Word doc, spreadsheet, image or text file</p>
+<p>Drag and drop any PDF, Word document, image (PNG, JPG, JPEG, TIFF, BMP) or text file (TXT, JSON, XML, MD)</p>
 </div>
 </div>
 <div class="workflow-arrow">&#8595;</div>
@@ -869,7 +862,7 @@ Get clean AI-ready Markdown that works beautifully with ChatGPT, Claude, Gemini,
 <span style="color:#fff;">Any</span><span style="color:var(--yellow);">2</span><span style="color:var(--claude-orange);">Markdown</span>
 </div>
 <div class="footer-tagline">
-Convert PDFs, Word files, spreadsheets, images and text into clean AI-ready Markdown.<br>
+Convert PDFs, Word documents, images (PNG, JPG, JPEG, TIFF, BMP) and text files (TXT, JSON, XML, MD) into clean AI-ready Markdown.<br>
 Built for ChatGPT, Claude, Gemini, Cursor, Windsurf and modern AI workflows.
 </div>
 </div>
@@ -934,6 +927,23 @@ startUpload();
 });
 
 function startUpload() {
+  const SUPPORTED_EXTS = ['.pdf', '.docx', '.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.txt', '.json', '.xml', '.md'];
+  const file = fileInput.files[0];
+  if (!file) return;
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (!SUPPORTED_EXTS.includes(ext)) {
+    const errDiv = document.getElementById('uploadError') || document.createElement('div');
+    errDiv.id = 'uploadError';
+    errDiv.style.cssText = 'background:#3b0a0a;border:1px solid #ef4444;color:#f87171;border-radius:12px;padding:14px 18px;margin-top:16px;font-size:0.9rem;font-weight:600;text-align:center;';
+    errDiv.innerHTML = '&#10060; Unsupported file format <strong>' + ext + '</strong>. Please upload only: PDF, DOCX, PNG, JPG, JPEG, TIFF, BMP, TXT, JSON, XML, or MD files.';
+    if (!document.getElementById('uploadError')) {
+      document.querySelector('.upload-section').appendChild(errDiv);
+    }
+    return;
+  }
+  const existingErr = document.getElementById('uploadError');
+  if (existingErr) existingErr.remove();
+
 uploadZone.style.display = 'none';
 statusArea.style.display = 'block';
 
