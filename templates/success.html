@@ -1,420 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversion Successful &mdash; Any2Markdown</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --bg: #0a0a0a; --bg2: #111111; --card: #1a1a1a;
-            --border: #2a2a2a; --orange: #f97316; --orange-light: #fb923c;
-            --claude-orange: #cc5a37; --yellow: #facc15;
-            --green: #4ade80; --text: #ffffff;
-            --text-muted: #9ca3af; --text-dim: #6b7280;
-        }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg); color: var(--text);
-            min-height: 100vh; overflow-x: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversion Successful &mdash; Any2Markdown</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+--bg: #0a0a0a; --bg2: #111111; --card: #1a1a1a;
+--border: #2a2a2a; --orange: #f97316; --orange-light: #fb923c;
+--claude-orange: #cc5a37; --yellow: #facc15;
+--green: #4ade80; --text: #ffffff;
+--text-muted: #9ca3af; --text-dim: #6b7280;
+}
+html { scroll-behavior: smooth; }
+body {
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+background: var(--bg); color: var(--text);
+min-height: 100vh; overflow-x: hidden;
+}
 
-        /* NAVBAR */
-        nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            padding: 16px 40px; display: flex; align-items: center;
-            justify-content: space-between;
-            background: rgba(10,10,10,0.85); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-        }
-        .nav-logo-link { text-decoration: none; display: inline-block; }
-        .nav-logo { font-size: 18px; font-weight: 700; }
-        .nav-btn {
-            background: var(--orange); color: #fff; border: none;
-            padding: 8px 18px; border-radius: 8px; font-size: 14px;
-            font-weight: 600; cursor: pointer; text-decoration: none;
-            transition: background .2s;
-        }
-        .nav-btn:hover { background: var(--orange-light); }
+/* NAVBAR */
+nav {
+position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+padding: 16px 40px; display: flex; align-items: center;
+justify-content: space-between;
+background: rgba(10,10,10,0.85); backdrop-filter: blur(12px);
+border-bottom: 1px solid var(--border);
+}
+.nav-logo-link { text-decoration: none; display: inline-block; }
+.nav-logo { font-size: 18px; font-weight: 700; }
+.nav-btn {
+background: var(--orange); color: #fff; border: none;
+padding: 8px 18px; border-radius: 8px; font-size: 14px;
+font-weight: 600; cursor: pointer; text-decoration: none;
+transition: background .2s;
+}
+.nav-btn:hover { background: var(--orange-light); }
 
-        /* CONFETTI */
-        #confetti-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 999;
-        }
+/* CONFETTI */
+#confetti-canvas {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+pointer-events: none; z-index: 999;
+}
 
-        /* MAIN */
-        main { padding: 110px 24px 80px; display: flex; flex-direction: column; align-items: center; }
+/* MAIN */
+main { padding: 110px 24px 80px; display: flex; flex-direction: column; align-items: center; }
 
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes popIn  { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* SUCCESS HERO */
-        .success-hero { text-align: center; margin-bottom: 48px; animation: fadeUp .5s ease both; }
-        .success-icon {
-            width: 88px; height: 88px;
-            background: linear-gradient(135deg, #16a34a, #4ade80);
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-size: 40px; margin: 0 auto 24px;
-            box-shadow: 0 0 40px rgba(74,222,128,0.35);
-            animation: popIn .5s cubic-bezier(.175,.885,.32,1.275) both;
-        }
-        .success-hero h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; margin-bottom: 10px; }
-        .success-hero h1 .green { color: var(--green); }
-        .success-hero p { color: var(--text-muted); font-size: 16px; }
+/* AI READY BANNER */
+.ai-ready-banner {
+width: 100%; max-width: 620px;
+background: rgba(249,115,22,0.06);
+border: 1px solid rgba(249,115,22,0.25);
+border-radius: 12px; padding: 14px 20px;
+margin-bottom: 28px; font-size: 13px;
+color: var(--text-muted); line-height: 1.65;
+animation: fadeUp .4s ease both;
+}
+.ai-ready-banner strong { color: #fdba74; }
 
-        /* FILE STATS CARD */
-        .file-card {
-            width: 100%; max-width: 620px; background: var(--card);
-            border: 1.5px solid rgba(74,222,128,0.3); border-radius: 18px;
-            overflow: hidden; margin-bottom: 24px;
-            animation: fadeUp .5s .1s ease both;
-        }
-        .file-card-header {
-            background: rgba(74,222,128,0.07); border-bottom: 1px solid rgba(74,222,128,0.15);
-            padding: 14px 20px; display: flex; align-items: center; gap: 8px;
-            font-size: 13px; font-weight: 600; color: var(--green);
-        }
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
-        .stat {
-            padding: 20px 24px; text-align: center;
-            border-right: 1px solid var(--border);
-        }
-        .stat:last-child { border-right: none; }
-        .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
-        .stat-value { font-size: 18px; font-weight: 800; }
-        .stat-value.green { color: var(--green); }
-        .stat-value.orange { color: var(--orange); }
-        .stat-value.filename { font-size: 13px; font-weight: 700; word-break: break-word; }
+/* SUCCESS HERO */
+.success-hero { text-align: center; margin-bottom: 32px; animation: fadeUp .5s ease both; }
+.success-icon {
+width: 88px; height: 88px;
+background: linear-gradient(135deg, #16a34a, #4ade80);
+border-radius: 50%; display: flex; align-items: center;
+justify-content: center; font-size: 40px; margin: 0 auto 24px;
+box-shadow: 0 0 40px rgba(74,222,128,0.35);
+animation: popIn .5s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.success-hero h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 800; margin-bottom: 10px; }
+.success-hero h1 .green { color: var(--green); }
+.success-hero p { color: var(--text-muted); font-size: 15px; line-height: 1.65; max-width: 480px; margin: 0 auto; }
 
-        /* WORKFLOW IMPACT CONTAINER */
-        .impact-container {
-            width: 100%; max-width: 620px; background: rgba(74,222,128,0.04); 
-            border: 1px dashed var(--green); border-radius: 14px; padding: 20px; 
-            margin-bottom: 24px; text-align: left; animation: fadeUp .5s .15s ease both;
-        }
-        .impact-title { color: var(--green); font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .impact-desc { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+/* FILE STATS CARD */
+.file-card {
+width: 100%; max-width: 620px; background: var(--card);
+border: 1.5px solid rgba(74,222,128,0.3); border-radius: 18px;
+overflow: hidden; margin-bottom: 24px;
+animation: fadeUp .5s .1s ease both;
+}
+.file-card-header {
+background: rgba(74,222,128,0.07); border-bottom: 1px solid rgba(74,222,128,0.15);
+padding: 14px 20px; display: flex; align-items: center; gap: 8px;
+font-size: 13px; font-weight: 600; color: var(--green);
+}
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+.stat {
+padding: 20px 24px; text-align: center;
+border-right: 1px solid var(--border);
+}
+.stat:last-child { border-right: none; }
+.stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+.stat-value { font-size: 18px; font-weight: 800; }
+.stat-value.green { color: var(--green); }
+.stat-value.orange { color: var(--orange); }
+.stat-value.filename { font-size: 13px; font-weight: 700; word-break: break-word; }
 
-        /* DOWNLOAD BUTTON */
-        .download-btn {
-            width: 100%; max-width: 620px;
-            background: linear-gradient(135deg, #16a34a, #4ade80);
-            color: #0a0a0a; border: none;
-            padding: 18px 32px; border-radius: 14px;
-            font-size: 17px; font-weight: 800; cursor: pointer;
-            text-decoration: none; display: flex; align-items: center;
-            justify-content: center; gap: 10px;
-            transition: transform .2s, box-shadow .2s;
-            box-shadow: 0 8px 30px rgba(74,222,128,0.3);
-            margin-bottom: 16px;
-            animation: fadeUp .5s .2s ease both;
-        }
-        .download-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(74,222,128,0.4); }
+/* WORKFLOW IMPACT CONTAINER */
+.impact-container {
+width: 100%; max-width: 620px; background: rgba(74,222,128,0.04);
+border: 1px dashed var(--green); border-radius: 14px; padding: 22px 24px;
+margin-bottom: 20px; text-align: left; animation: fadeUp .5s .15s ease both;
+}
+.impact-title { color: var(--green); font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.impact-desc { color: var(--text-muted); font-size: 13px; line-height: 1.65; margin-bottom: 14px; }
+.impact-benefits { display: flex; flex-direction: column; gap: 7px; }
+.impact-benefit {
+display: flex; align-items: flex-start; gap: 8px;
+font-size: 13px; color: var(--text-muted);
+}
+.impact-benefit .check { color: var(--green); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.impact-note { margin-top: 14px; font-size: 12px; color: var(--text-dim); font-style: italic; line-height: 1.6; }
 
-        .convert-again-link {
-            font-size: 14px; color: var(--text-dim); text-align: center; margin-bottom: 72px;
-            animation: fadeUp .5s .25s ease both;
-        }
-        .convert-again-link a { color: var(--orange); text-decoration: none; }
-        .convert-again-link a:hover { text-decoration: underline; }
+/* AI TOOLS ROW */
+.ai-tools-container {
+width: 100%; max-width: 620px;
+background: var(--card); border: 1px solid var(--border);
+border-radius: 14px; padding: 18px 22px;
+margin-bottom: 24px; animation: fadeUp .5s .18s ease both;
+}
+.ai-tools-title {
+font-size: 12px; font-weight: 700; text-transform: uppercase;
+letter-spacing: 0.8px; color: var(--text-dim); margin-bottom: 12px;
+display: flex; align-items: center; gap: 6px;
+}
+.ai-tools-pills {
+display: flex; flex-wrap: wrap; gap: 8px;
+}
+.ai-tool-pill {
+background: rgba(255,255,255,0.05); border: 1px solid #3a3a3a;
+color: var(--text-muted); padding: 5px 14px;
+border-radius: 20px; font-size: 12px; font-weight: 600;
+}
 
-        /* DIVIDER */
-        .section-divider {
-            width: 100%; max-width: 620px; display: flex; align-items: center;
-            gap: 16px; margin-bottom: 40px; animation: fadeUp .5s .3s ease both;
-        }
-        .section-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
-        .section-divider span { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
+/* DOWNLOAD BUTTON */
+.download-btn {
+width: 100%; max-width: 620px;
+background: linear-gradient(135deg, #16a34a, #4ade80);
+color: #0a0a0a; border: none;
+padding: 18px 32px; border-radius: 14px;
+font-size: 17px; font-weight: 800; cursor: pointer;
+text-decoration: none; display: flex; align-items: center;
+justify-content: center; gap: 10px;
+transition: transform .2s, box-shadow .2s;
+box-shadow: 0 8px 30px rgba(74,222,128,0.3);
+margin-bottom: 16px;
+animation: fadeUp .5s .2s ease both;
+}
+.download-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(74,222,128,0.4); }
 
-        /* DONATION CARD */
-        .donation-card {
-            width: 100%; max-width: 620px;
-            background: var(--card); border: 1.5px solid var(--border);
-            border-radius: 22px; overflow: hidden; margin-bottom: 32px;
-            animation: fadeUp .5s .35s ease both;
-            position: relative;
-        }
-        .donation-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, var(--orange), #f59e0b, var(--green), #60a5fa);
-        }
+/* PRO TIP */
+.pro-tip {
+width: 100%; max-width: 620px;
+background: rgba(249,115,22,0.05); border: 1px solid rgba(249,115,22,0.2);
+border-radius: 12px; padding: 16px 20px;
+margin-bottom: 16px; animation: fadeUp .5s .22s ease both;
+}
+.pro-tip-title {
+font-size: 12px; font-weight: 700; text-transform: uppercase;
+letter-spacing: 0.8px; color: var(--orange); margin-bottom: 8px;
+}
+.pro-tip p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
 
-        .donation-header { padding: 32px 28px 24px; text-align: center; }
-        .donation-emoji { font-size: 44px; display: block; margin-bottom: 14px; }
-        .donation-header h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-        .donation-header h2 .orange { color: var(--orange); }
-        .donation-header p { color: var(--text-muted); font-size: 15px; line-height: 1.7; max-width: 440px; margin: 0 auto; }
+.convert-again-link {
+font-size: 14px; color: var(--text-dim); text-align: center; margin-bottom: 64px;
+animation: fadeUp .5s .25s ease both;
+}
+.convert-again-link a { color: var(--orange); text-decoration: none; }
+.convert-again-link a:hover { text-decoration: underline; }
 
-        /* QR section */
-        .qr-section { padding: 0 28px 28px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+/* DIVIDER */
+.section-divider {
+width: 100%; max-width: 620px; display: flex; align-items: center;
+gap: 16px; margin-bottom: 40px; animation: fadeUp .5s .3s ease both;
+}
+.section-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+.section-divider span { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
 
-        .qr-card {
-            background: #fff; border-radius: 18px; padding: 20px; 
-            display: flex; flex-direction: column; align-items: center; gap: 14px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.4); position: relative; width: 100%; max-width: 320px;
-        }
-        .qr-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
-        .qr-name-row .avatar {
-            width: 34px; height: 34px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--claude-orange), #f59e0b);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px; font-weight: 800; color: #fff;
-        }
-        .qr-name-row span { font-size: 16px; font-weight: 700; color: #1a1a1a; }
-        .qr-image-wrap { width: 100%; height: auto; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; background: #ffffff; padding: 4px; }
-        .qr-image-wrap img { width: 100%; height: auto; display: block; object-fit: contain; }
-        .qr-scan-hint { font-size: 13px; color: #6b7280; font-weight: 500; text-align: center; }
+/* DONATION CARD */
+.donation-card {
+width: 100%; max-width: 620px;
+background: var(--card); border: 1.5px solid var(--border);
+border-radius: 22px; overflow: hidden; margin-bottom: 32px;
+animation: fadeUp .5s .35s ease both;
+position: relative;
+}
+.donation-card::before {
+content: '';
+position: absolute; top: 0; left: 0; right: 0; height: 3px;
+background: linear-gradient(90deg, var(--orange), #f59e0b, var(--green), #60a5fa);
+}
 
-        /* App badges row */
-        .app-badges { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
-        .app-badge {
-            display: flex; align-items: center; gap: 6px;
-            background: #111; border: 1px solid var(--border);
-            border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600;
-            color: var(--text-muted);
-        }
-        .app-badge.gpay { color: #4285F4; border-color: rgba(66,133,244,0.3); background: rgba(66,133,244,0.06); }
-        .app-badge.phonepe { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
-        .app-badge.paytm { color: #00BAF2; border-color: rgba(0,186,242,0.3); background: rgba(0,186,242,0.06); }
+.donation-header { padding: 32px 28px 24px; text-align: center; }
+.donation-emoji { font-size: 40px; display: block; margin-bottom: 14px; }
+.donation-header h2 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+.donation-header p { color: var(--text-muted); font-size: 14px; line-height: 1.75; max-width: 460px; margin: 0 auto; }
 
-        /* UPI ID box */
-        .upi-box-wrap { width: 100%; text-align: center; }
-        .upi-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; }
-        .upi-id-box {
-            background: rgba(249,115,22,0.08); border: 1.5px solid rgba(249,115,22,0.3);
-            border-radius: 10px; padding: 12px 20px;
-            font-size: 17px; font-weight: 800; color: var(--orange);
-            letter-spacing: .5px; cursor: pointer; transition: all .2s;
-            display: inline-flex; align-items: center; gap: 10px;
-        }
-        .upi-id-box:hover { background: rgba(249,115,22,0.14); border-color: var(--orange); }
-        .copy-icon { font-size: 16px; opacity: .7; }
-        .copy-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+/* QR section */
+.qr-section { padding: 0 28px 28px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
 
-        .amount-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; }
-        .chip {
-            background: rgba(249,115,22,0.1); border: 1.5px solid rgba(249,115,22,0.3);
-            color: var(--orange); font-size: 14px; font-weight: 700;
-            padding: 8px 20px; border-radius: 100px;
-        }
-        .chip.highlight { background: rgba(249,115,22,0.18); border-color: var(--orange); }
+.qr-card {
+background: #fff; border-radius: 18px; padding: 20px;
+display: flex; flex-direction: column; align-items: center; gap: 14px;
+box-shadow: 0 4px 24px rgba(0,0,0,0.4); position: relative; width: 100%; max-width: 320px;
+}
+.qr-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+.qr-name-row .avatar {
+width: 34px; height: 34px; border-radius: 50%;
+background: linear-gradient(135deg, var(--claude-orange), #f59e0b);
+display: flex; align-items: center; justify-content: center;
+font-size: 15px; font-weight: 800; color: #fff;
+}
+.qr-name-row span { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+.qr-image-wrap { width: 100%; height: auto; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; background: #ffffff; padding: 4px; }
+.qr-image-wrap img { width: 100%; height: auto; display: block; object-fit: contain; }
+.qr-scan-hint { font-size: 13px; color: #6b7280; font-weight: 500; text-align: center; }
 
-        .donation-note { padding: 0 28px 28px; text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
-        .donation-note strong { color: var(--text-muted); }
+/* App badges row */
+.app-badges { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.app-badge {
+display: flex; align-items: center; gap: 6px;
+background: #111; border: 1px solid var(--border);
+border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+color: var(--text-muted);
+}
+.app-badge.gpay { color: #4285F4; border-color: rgba(66,133,244,0.3); background: rgba(66,133,244,0.06); }
+.app-badge.phonepe { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+.app-badge.paytm { color: #00BAF2; border-color: rgba(0,186,242,0.3); background: rgba(0,186,242,0.06); }
 
-        .footer-simple { width: 100%; max-width: 620px; text-align: center; font-size: 13px; color: var(--text-dim); animation: fadeUp .5s .4s ease both; }
-        .footer-simple a { color: var(--orange); text-decoration: none; }
+/* UPI ID box */
+.upi-box-wrap { width: 100%; text-align: center; }
+.upi-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; }
+.upi-id-box {
+background: rgba(249,115,22,0.08); border: 1.5px solid rgba(249,115,22,0.3);
+border-radius: 10px; padding: 12px 20px;
+font-size: 17px; font-weight: 800; color: var(--orange);
+letter-spacing: .5px; cursor: pointer; transition: all .2s;
+display: inline-flex; align-items: center; gap: 10px;
+}
+.upi-id-box:hover { background: rgba(249,115,22,0.14); border-color: var(--orange); }
+.copy-icon { font-size: 16px; opacity: .7; }
+.copy-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
 
-        @media (max-width: 600px) {
-            nav { padding: 14px 20px; }
-            .stats-row { grid-template-columns: 1fr; }
-            .stat { border-right: none; border-bottom: 1px solid var(--border); }
-            .stat:last-child { border-bottom: none; }
-            .qr-card { max-width: 290px; }
-        }
-    </style>
+.amount-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; }
+.chip {
+background: rgba(249,115,22,0.1); border: 1.5px solid rgba(249,115,22,0.3);
+color: var(--orange); font-size: 14px; font-weight: 700;
+padding: 8px 20px; border-radius: 100px;
+}
+.chip.highlight { background: rgba(249,115,22,0.18); border-color: var(--orange); }
+
+.donation-note { padding: 0 28px 28px; text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.8; }
+.donation-note strong { color: var(--text-muted); }
+
+.footer-simple { width: 100%; max-width: 620px; text-align: center; font-size: 13px; color: var(--text-dim); animation: fadeUp .5s .4s ease both; line-height: 1.8; }
+.footer-simple a { color: var(--orange); text-decoration: none; }
+.footer-simple p { margin-bottom: 4px; }
+
+@media (max-width: 600px) {
+nav { padding: 14px 20px; }
+.stats-row { grid-template-columns: 1fr; }
+.stat { border-right: none; border-bottom: 1px solid var(--border); }
+.stat:last-child { border-bottom: none; }
+.qr-card { max-width: 290px; }
+}
+</style>
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
 
 <nav>
-    <a href="/" class="nav-logo-link">
-        <div class="nav-logo"><span style="color:#ffffff;font-weight:800;">Any</span><span style="color:var(--yellow);font-weight:900;">2</span><span style="color:var(--claude-orange);font-weight:800;">Markdown</span></div>
-    </a>
-    <a href="/" class="nav-btn">&#8592; &#128260; Convert Another File</a>
+<a href="/" class="nav-logo-link">
+<div class="nav-logo"><span style="color:#ffffff;font-weight:800;">Any</span><span style="color:var(--yellow);font-weight:900;">2</span><span style="color:var(--claude-orange);font-weight:800;">Markdown</span></div>
+</a>
+<a href="/" class="nav-btn">&#8592; &#128260; Convert Another File</a>
 </nav>
 
 <main>
 
-    <div class="success-hero">
-        <div class="success-icon">&#10003;</div>
-        <h1>Converted <span class="green">Successfully!</span> 🎉</h1>
-        <p>Your file has been converted to clean Markdown — download it below and start using it right away!</p>
-    </div>
+<!-- MOST IMPORTANT LINE: AI VALUE BANNER -->
+<div class="ai-ready-banner">
+<strong>&#128161; Most PDFs and Office documents contain formatting noise that AI models don&#39;t need.</strong> Your downloaded Markdown version is optimized for ChatGPT, Claude, Cursor, Windsurf and modern AI workflows.
+</div>
 
-    <div class="file-card">
-        <div class="file-card-header">📄 Conversion Summary</div>
-        <div class="stats-row">
-            <div class="stat">
-                <div class="stat-label">Original File</div>
-                <div class="stat-value filename">{{ info.original_name }}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Original Size</div>
-                <div class="stat-value orange">{{ info.input_size }}</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Markdown Size</div>
-                <div class="stat-value green">{{ info.output_size }}</div>
-            </div>
-        </div>
-    </div>
+<!-- SUCCESS HERO -->
+<div class="success-hero">
+<div class="success-icon">&#127881;</div>
+<h1>&#127881; Your Document Is Now <span class="green">AI-Ready</span></h1>
+<p>We&#39;ve converted your file into clean Markdown that&#39;s easier for ChatGPT, Claude, Gemini, Cursor and AI agents to understand.</p>
+</div>
 
-    <div class="impact-container">
-        <div class="impact-title">🚀 &#127775; What can you do with this Markdown?</div>
-        <div class="impact-desc">
-            Your file is now in clean, lightweight Markdown. You can 
-            <strong>paste it into ChatGPT, Claude, or Notion</strong>, use it in Obsidian, Notion, or any notes appextual 
-            or <strong>share it as clean, readable documentation</strong>. Your document is now 
-            100% optimized for Claude, ChatGPT, and custom LLM interfaces.
-        </div>
-    </div>
+<!-- FILE STATS -->
+<div class="file-card">
+<div class="file-card-header">&#128196; Conversion Summary</div>
+<div class="stats-row">
+<div class="stat">
+<div class="stat-label">Original File</div>
+<div class="stat-value filename">{{ info.original_name }}</div>
+</div>
+<div class="stat">
+<div class="stat-label">Original Size</div>
+<div class="stat-value orange">{{ info.input_size }}</div>
+</div>
+<div class="stat">
+<div class="stat-label">Markdown Size</div>
+<div class="stat-value green">{{ info.output_size }}</div>
+</div>
+</div>
+</div>
 
-    <a href="{{ url_for('download_file', uid=info.uid, filename=info.md_filename) }}" class="download-btn" id="downloadBtn">
-        📥 Download {{ info.md_filename }}
-    </a>
-    <p class="convert-again-link">
-        Got another file to convert? <a href="/">Go back to converter &rarr;</a>
-    </p>
+<!-- WHY THIS MARKDOWN IS BETTER FOR AI -->
+<div class="impact-container">
+<div class="impact-title">&#128640; Why is this Markdown better for AI?</div>
+<div class="impact-desc">
+Most PDFs, Word documents and PowerPoint files contain hidden formatting, XML metadata, styling instructions and layout information that AI models don&#39;t actually need.<br><br>
+Your Markdown version focuses on the content itself.
+</div>
+<div class="impact-benefits">
+<div class="impact-benefit"><span class="check">&#10003;</span> Cleaner prompts for ChatGPT &amp; Claude</div>
+<div class="impact-benefit"><span class="check">&#10003;</span> Better context utilization</div>
+<div class="impact-benefit"><span class="check">&#10003;</span> Improved RAG and vector search performance</div>
+<div class="impact-benefit"><span class="check">&#10003;</span> Cleaner embeddings</div>
+<div class="impact-benefit"><span class="check">&#10003;</span> Easier document analysis</div>
+<div class="impact-benefit"><span class="check">&#10003;</span> Reduced formatting noise</div>
+</div>
+<p class="impact-note">In many cases, AI tools perform better when working with clean Markdown instead of the original file.</p>
+</div>
 
-    <div class="section-divider">
-        <hr><span>☕ Enjoyed the tool? Here&rsquo;s a little something&hellip;</span><hr>
-    </div>
+<!-- AI TOOLS -->
+<div class="ai-tools-container">
+<div class="ai-tools-title">&#129302; Works Great With</div>
+<div class="ai-tools-pills">
+<span class="ai-tool-pill">ChatGPT</span>
+<span class="ai-tool-pill">Claude</span>
+<span class="ai-tool-pill">Gemini</span>
+<span class="ai-tool-pill">Cursor</span>
+<span class="ai-tool-pill">Windsurf</span>
+<span class="ai-tool-pill">Obsidian</span>
+<span class="ai-tool-pill">Notion</span>
+<span class="ai-tool-pill">RAG Systems</span>
+<span class="ai-tool-pill">Knowledge Bases</span>
+</div>
+</div>
 
-    <div class="donation-card">
-        <div class="donation-header">
-            <span class="donation-emoji">☕️</span>
-            <h2>Buy me a <span class="orange">chai?</span> 🍺</h2>
-            <p>
-                This tool will always be 100% free! If it saved you time today, a small chai donation goes a long way and sped up your workflow, a tiny tip means the world and keeps the servers running! 💕
-            </p>
-        </div>
+<!-- DOWNLOAD BUTTON -->
+<a href="{{ url_for('download_file', uid=info.uid, filename=info.md_filename) }}" class="download-btn" id="downloadBtn">
+&#128229; Download {{ info.md_filename }}
+</a>
 
-        <div class="qr-section">
+<!-- PRO TIP -->
+<div class="pro-tip">
+<div class="pro-tip-title">&#128161; Pro Tip</div>
+<p>Instead of uploading the original PDF or DOCX into ChatGPT, try uploading the Markdown version you just downloaded. Many users find that AI tools produce cleaner analysis because unnecessary formatting has already been removed.</p>
+</div>
 
-            <div class="qr-card">
-                <div class="qr-name-row">
-                    <div class="avatar">K</div>
-                    <span>Kaushik VM</span>
-                </div>
-                <div class="qr-image-wrap">
-                    <img src="/static/upi-qr.png" alt="Google Pay UPI QR Code — Kaushik VM">
-                </div>
-                <p class="qr-scan-hint">📷 Scan with GPay or any UPI app</p>
-            </div>
+<p class="convert-again-link">
+Got another file to convert? <a href="/">Go back to converter &rarr;</a>
+</p>
 
-            <div class="app-badges">
-                <div class="app-badge gpay">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                    Google Pay
-                </div>
-                <div class="app-badge phonepe">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#a78bfa"><circle cx="12" cy="12" r="10"/></svg>
-                    PhonePe
-                </div>
-                <div class="app-badge paytm">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#00BAF2"><rect width="24" height="24" rx="4"/></svg>
-                    Paytm
-                </div>
-                <div class="app-badge" style="color:#4ade80;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.06);">
-                    + Any UPI App
-                </div>
-            </div>
+<div class="section-divider">
+<hr><span>&#10084;&#65039; Support the project</span><hr>
+</div>
 
-            <div class="upi-box-wrap">
-                <div class="upi-label">UPI ID &mdash; tap to copy</div>
-                <div class="upi-id-box" id="upiIdBox">
-                    <span id="upiIdText">kaushik.icon@oksbi</span>
-                    <span class="copy-icon">📋</span>
-                </div>
-                <div class="copy-hint" id="copyHint">&#128274; Tap to copy UPI ID &bull; Works on GPay, PhonePe, Paytm &amp; moreytm &amp; all UPI apps</div>
-            </div>
+<!-- DONATION CARD -->
+<div class="donation-card">
+<div class="donation-header">
+<span class="donation-emoji">&#10084;&#65039;</span>
+<h2>Support Any2Markdown</h2>
+<p>
+Any2Markdown is designed to help people work more effectively with AI by transforming complex documents into clean, structured Markdown.<br><br>
+If this tool added value to your workflow, you&#39;re welcome to support its continued improvement. Every contribution helps improve conversion quality, support more file formats, and enhance AI-focused features.
+</p>
+</div>
 
-            <div class="amount-row">
-                <span class="chip">₹ 20</span>
-                <span class="chip">₹ 50</span>
-                <span class="chip highlight">₹ 100</span>
-                <span class="chip highlight">₹ 200</span>
-                <span class="chip">Any amount 😊</span>
-            </div>
+<div class="qr-section">
 
-        </div>
+<div class="qr-card">
+<div class="qr-name-row">
+<div class="avatar">K</div>
+<span>Kaushik VM</span>
+</div>
+<div class="qr-image-wrap">
+<img src="/static/upi-qr.png" alt="Google Pay UPI QR Code — Kaushik VM">
+</div>
+<p class="qr-scan-hint">&#128247; Scan with GPay or any UPI app</p>
+</div>
 
-        <div class="donation-note">
-            <strong>No pressure at all!</strong> Your support keeps this running and helps add more formats.
-            Every chai counts &#9749; — it keeps the servers running and motivates new features!ments.
-            Thank you for supporting Any2Markdown! 💕
-        </div>
-    </div>
+<div class="app-badges">
+<div class="app-badge gpay">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+Google Pay
+</div>
+<div class="app-badge phonepe">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="#a78bfa"><circle cx="12" cy="12" r="10"/></svg>
+PhonePe
+</div>
+<div class="app-badge paytm">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="#00BAF2"><rect width="24" height="24" rx="4"/></svg>
+Paytm
+</div>
+<div class="app-badge" style="color:#4ade80;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.06);">
++ Any UPI App
+</div>
+</div>
 
-    <p class="footer-simple">
-        &copy; 2026 <a href="/" style="font-weight: 700; text-decoration: none;"><span style="color:#ffffff;">Any</span><span style="color:var(--yellow);">2</span><span style="color:var(--claude-orange);">Markdown</span></a> &mdash; Made with ❤️ for developers &bull;
-        <a href="/">&#128260; Convert Another File file</a>
-    </p>
+<div class="upi-box-wrap">
+<div class="upi-label">UPI ID &mdash; tap to copy</div>
+<div class="upi-id-box" id="upiIdBox">
+<span id="upiIdText">kaushik.icon@oksbi</span>
+<span class="copy-icon">&#128203;</span>
+</div>
+<div class="copy-hint" id="copyHint">&#128274; Tap to copy UPI ID &bull; Works on GPay, PhonePe, Paytm &amp; all UPI apps</div>
+</div>
+
+<div class="amount-row">
+<span class="chip">&#9749; &#8377;20 Chai</span>
+<span class="chip">&#127850; &#8377;50 Snack</span>
+<span class="chip highlight">&#128640; &#8377;100 Supporter</span>
+<span class="chip highlight">&#128081; &#8377;200 Champion</span>
+</div>
+
+</div>
+
+<div class="donation-note">
+<strong>Thank you for using Any2Markdown &#10084;&#65039;</strong><br><br>
+Whether you choose to contribute or not, we&#39;re grateful that you trusted this tool with your document.<br><br>
+Our goal is simple: <strong>Make documents easier for AI systems to understand.</strong>
+</div>
+</div>
+
+<!-- FOOTER -->
+<p class="footer-simple">
+&copy; 2026 <a href="/" style="font-weight: 700; text-decoration: none;"><span style="color:#ffffff;">Any</span><span style="color:var(--yellow);">2</span><span style="color:var(--claude-orange);">Markdown</span></a> &mdash; Made with &#10084;&#65039; by Kaushik VM &bull;
+<a href="/">&#128260; Convert Another File</a>
+</p>
 
 </main>
 
 <script>
 // ---- CONFETTI ----
 (function () {
-    const canvas = document.getElementById('confetti-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const colors = ['#f97316','#4ade80','#facc15','#60a5fa','#f472b6','#a78bfa','#34d399'];
-    const pieces = Array.from({ length: 130 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - canvas.height,
-        w: Math.random() * 10 + 5, h: Math.random() * 6 + 3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        rot: Math.random() * 360, rotSpeed: (Math.random() - .5) * 6,
-        vy: Math.random() * 3 + 2, vx: (Math.random() - .5) * 2, opacity: 1,
-    }));
-    let frame = 0;
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        frame++;
-        let alive = false;
-        pieces.forEach(p => {
-            if (p.y < canvas.height + 20) {
-                alive = true;
-                p.y += p.vy; p.x += p.vx; p.rot += p.rotSpeed;
-                if (frame > 120) p.opacity = Math.max(0, p.opacity - .008);
-                ctx.save();
-                ctx.globalAlpha = p.opacity;
-                ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
-                ctx.rotate(p.rot * Math.PI / 180);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-                ctx.restore();
-            }
-        });
-        if (alive && frame < 260) requestAnimationFrame(draw);
-        else ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    draw();
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const colors = ['#f97316','#4ade80','#facc15','#60a5fa','#f472b6','#a78bfa','#34d399'];
+const pieces = Array.from({ length: 130 }, () => ({
+x: Math.random() * canvas.width,
+y: Math.random() * canvas.height - canvas.height,
+w: Math.random() * 10 + 5, h: Math.random() * 6 + 3,
+color: colors[Math.floor(Math.random() * colors.length)],
+rot: Math.random() * 360, rotSpeed: (Math.random() - .5) * 6,
+vy: Math.random() * 3 + 2, vx: (Math.random() - .5) * 2, opacity: 1,
+}));
+let frame = 0;
+function draw() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+frame++;
+let alive = false;
+pieces.forEach(p => {
+if (p.y < canvas.height + 20) {
+alive = true;
+p.y += p.vy; p.x += p.vx; p.rot += p.rotSpeed;
+if (frame > 120) p.opacity = Math.max(0, p.opacity - .008);
+ctx.save();
+ctx.globalAlpha = p.opacity;
+ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+ctx.rotate(p.rot * Math.PI / 180);
+ctx.fillStyle = p.color;
+ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+ctx.restore();
+}
+});
+if (alive && frame < 260) requestAnimationFrame(draw);
+else ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+draw();
 })();
 
 // ---- COPY UPI ID ----
 document.getElementById('upiIdBox').addEventListener('click', function () {
-    const upiId = document.getElementById('upiIdText').textContent.trim();
-    navigator.clipboard.writeText(upiId).then(() => {
-        const box = document.getElementById('upiIdBox');
-        const hint = document.getElementById('copyHint');
-        const icon = box.querySelector('.copy-icon');
-        const origIcon = icon.textContent;
-        icon.textContent = '✅';
-        hint.textContent = '✅ Copied! Open any UPI app and paste to pay.';
-        hint.style.color = 'var(--green)';
-        setTimeout(() => {
-            icon.textContent = origIcon;
-            hint.textContent = 'Tap the box to copy \u2022 Works on GPay, PhonePe, Paytm & all UPI apps';
-            hint.style.color = '';
-        }, 2500);
-    });
+const upiId = document.getElementById('upiIdText').textContent.trim();
+navigator.clipboard.writeText(upiId).then(() => {
+const box = document.getElementById('upiIdBox');
+const hint = document.getElementById('copyHint');
+const icon = box.querySelector('.copy-icon');
+const origIcon = icon.textContent;
+icon.textContent = '&#10003;';
+hint.textContent = '&#10003; Copied! Open any UPI app and paste to pay.';
+hint.style.color = 'var(--green)';
+setTimeout(() => {
+icon.textContent = origIcon;
+hint.textContent = 'Tap the box to copy • Works on GPay, PhonePe, Paytm & all UPI apps';
+hint.style.color = '';
+}, 2500);
+});
 });
 
-// ---- FIXED DYNAMIC AUTO-DOWNLOAD TRIGGER WITH JINJA SAFEGUARDS ----
+// ---- AUTO-DOWNLOAD ----
 window.addEventListener('load', function () {
-    {% if info and info.uid and info.md_filename %}
-    setTimeout(function () {
-        window.location.href = "{{ url_for('download_file', uid=info.uid, filename=info.md_filename) }}";
-    }, 1000); 
-    {% endif %}
+{% if info and info.uid and info.md_filename %}
+setTimeout(function () {
+window.location.href = "{{ url_for('download_file', uid=info.uid, filename=info.md_filename) }}";
+}, 1000);
+{% endif %}
 });
 </script>
 </body>
