@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+h<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -947,7 +947,7 @@ if (progress > 60) { setStep('step3', 'done'); setStep('step4', 'active'); }
 }, 300);
 
 const formData = new FormData(uploadForm);
-fetch('/convert', { method: 'POST', body: formData })
+fetch('/', { method: 'POST', body: formData })
 .then(r => {
 clearInterval(interval);
 bar.style.width = '100%';
